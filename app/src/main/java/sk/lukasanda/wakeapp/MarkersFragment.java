@@ -1,8 +1,11 @@
 package sk.lukasanda.wakeapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -44,7 +50,7 @@ public class MarkersFragment extends Fragment {
     }
     
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_markers, container, false);
@@ -71,19 +77,39 @@ public class MarkersFragment extends Fragment {
         mListener = null;
     }
     
-    public void setAdapter(List<DbGeofence> geofences){
+    public void setAdapter(final List<DbGeofence> geofences){
         if(recyclerView!=null){
             recyclerView.setAdapter(new MarkerListAdapter(getActivity(), geofences, new MarkerListAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(int position) {
-        
+                    makeDialog(geofences.get(position));
                 }
             }));
         }
     }
     
+    private void makeDialog(final DbGeofence geofence){
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setTitle("Remove this alarm?")
+                .setMessage("Are you sure ?")
+                .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(mListener!=null)mListener.onFragmentInteraction(geofence);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    
+                    }
+                })
+                .create();
+        dialog.show();
+    }
+    
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Geofence geofence);
+        void onFragmentInteraction(DbGeofence geofence);
     }
 }

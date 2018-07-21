@@ -82,7 +82,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ValueEventListener listener;
     
     private DraggableCircle draggableCircle;
-    private DbUser currentUser;
+    
+    private List<DbGeofence> geofencesList = new ArrayList<>();
     
     private MarkersFragment markersFragment;
     
@@ -189,16 +190,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             map.clear();
-                            if (currentUser == null) {
-                                currentUser = new DbUser(new ArrayList<DbGeofence>());
+                            if (geofencesList == null) {
+                                geofencesList = new ArrayList<>();
                             }
-                            currentUser.getGeofences().add(new DbGeofence(taskEditText
+                            geofencesList.add(new DbGeofence(taskEditText
                                     .getText().toString(),
                                     draggableCircle.mCenterMarker.getPosition().latitude,
                                     draggableCircle.mCenterMarker
                                             .getPosition().longitude, draggableCircle.mCircle
                                     .getRadius()));
-                            mDatabase.child(getUniqueID()).setValue(currentUser);
+                            mDatabase.child(getUniqueID()).setValue(geofencesList);
                             draggableCircle = null;
                         }
                     })
@@ -207,7 +208,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         public void onClick(DialogInterface dialog, int which) {
                             draggableCircle = null;
                             map.clear();
-                            for (DbGeofence geofence : currentUser.getGeofences()) {
+                            for (DbGeofence geofence : geofencesList) {
                                 map.addMarker(new MarkerOptions().position(new LatLng(geofence
                                         .getLatitude(), geofence.getLongitude())).draggable(false));
                             }
@@ -225,59 +226,47 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @SuppressLint("MissingPermission")
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    currentUser = dataSnapshot.getValue(DbUser.class);
-                    mGeofenceList.clear();
-                    if (currentUser != null) {
+                    geofencesList.clear();
+                    map.clear();
+                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+                        DbGeofence geofence = d.getValue(DbGeofence.class);
+                        if (geofence == null) continue;
+                        geofencesList.add(geofence);
+                        mGeofenceList.clear();
+                        
                         if (map != null && map.getCameraPosition().zoom <= 5) {
                             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
-                                    (currentUser.getGeofences().get(0).getLatitude(), currentUser
-                                            .getGeofences().get(0).getLongitude()), 15f));
+                                    (geofencesList.get(0).getLatitude(),
+                                            geofencesList.get(0).getLongitude()), 15f));
                         }
-                        for (DbGeofence geofence : currentUser.getGeofences()) {
-                            if (geofence.getRadius() > 0) {
-                                mGeofenceList.add(new Geofence.Builder()
-                                        // Set the request ID of the geofence. This is a string to
-                                        // identify this
-                                        // geofence.
-                                        .setRequestId(geofence.getName())
-                                        
-                                        // Set the circular region of this geofence.
-                                        .setCircularRegion(
-                                                geofence.getLatitude(),
-                                                geofence.getLongitude(),
-                                                (float) geofence.getRadius()
-                                        )
-                                        
-                                        // Set the expiration duration of the geofence. This
-                                        // geofence
-                                        // gets automatically
-                                        // removed after this period of time.
-                                        .setExpirationDuration(Constants
-                                                .GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-                                        
-                                        // Set the transition types of interest. Alerts are only
-                                        // generated for these
-                                        // transition. We track entry and exit transitions in this
-                                        // sample.
-                                        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                                                Geofence.GEOFENCE_TRANSITION_EXIT)
-                                        
-                                        // Create the geofence.
-                                        .build());
-                                if (map != null)
-                                    map.addMarker(new MarkerOptions().position(new LatLng(geofence
-                                            .getLatitude(), geofence.getLongitude())).draggable
-                                            (false));
-                            }
+                        if (geofence.getRadius() > 0) {
+                            mGeofenceList.add(new Geofence.Builder()
+                                    .setRequestId(geofence.getName())
+                                    .setCircularRegion(
+                                            geofence.getLatitude(),
+                                            geofence.getLongitude(),
+                                            (float) geofence.getRadius()
+                                    )
+                                    .setExpirationDuration(Constants
+                                            .GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                            Geofence.GEOFENCE_TRANSITION_EXIT)
+                                    .build());
+                            if (map != null)
+                                map.addMarker(new MarkerOptions().position(new LatLng
+                                        (geofence
+                                                .getLatitude(), geofence.getLongitude()))
+                                        .draggable
+                                                (false));
                         }
-                        markersFragment.setAdapter(currentUser.getGeofences());
-                        if (mGeofenceList.size() > 0) {
-                            mGeofencingClient.addGeofences(getGeofencingRequest(),
-                                    getGeofencePendingIntent())
-                                    .addOnCompleteListener(MapsActivity.this);
-                        }
+                        
                     }
-                    
+                    markersFragment.setAdapter(geofencesList);
+                    if (mGeofenceList.size() > 0) {
+                        mGeofencingClient.addGeofences(getGeofencingRequest(),
+                                getGeofencePendingIntent())
+                                .addOnCompleteListener(MapsActivity.this);
+                    }
                 }
                 
                 @Override
@@ -360,13 +349,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onPause() {
         super.onPause();
-        mDatabase.removeEventListener(listener);
+        mDatabase.child(getUniqueID()).removeEventListener(listener);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        if (listener != null) mDatabase.addValueEventListener(listener);
+        if (listener != null) mDatabase.child(getUniqueID()).addValueEventListener(listener);
     }
     
     @SuppressLint("MissingPermission")
@@ -439,7 +428,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     
     @Override
-    public void onFragmentInteraction(Geofence geofence) {
+    public void onFragmentInteraction(DbGeofence geofence) {
+        if (geofencesList == null || geofencesList.size() == 0)
+            return;
+        if (geofencesList.contains(geofence))
+            geofencesList.remove(geofence);
+        mDatabase.child(getUniqueID()).setValue(geofencesList);
     }
     
     /**

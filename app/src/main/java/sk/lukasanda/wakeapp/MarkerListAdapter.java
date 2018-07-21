@@ -44,6 +44,13 @@ public class MarkerListAdapter extends
                          final OnItemClickListener listener) {
             name.setText(model.getName());
             location.setText(new LatLng(model.getLatitude(),model.getLongitude()).toString());
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    listener.onItemClick(getAdapterPosition());
+                    return false;
+                }
+            });
         }
     }
 
