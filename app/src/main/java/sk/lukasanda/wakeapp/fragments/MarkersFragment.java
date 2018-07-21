@@ -93,7 +93,7 @@ public class MarkersFragment extends Fragment {
                 .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(mListener!=null)mListener.onFragmentInteraction(geofence);
+                        if(mListener!=null)mListener.onGeofenceDeleted(geofence);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -108,6 +108,6 @@ public class MarkersFragment extends Fragment {
     
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(DbGeofence geofence);
+        void onGeofenceDeleted(DbGeofence geofence);
     }
 }

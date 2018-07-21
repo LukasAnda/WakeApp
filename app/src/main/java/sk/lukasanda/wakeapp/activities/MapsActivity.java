@@ -1,10 +1,8 @@
 package sk.lukasanda.wakeapp.activities;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
@@ -12,7 +10,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -23,9 +20,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -33,7 +27,6 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -54,22 +47,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import sk.lukasanda.wakeapp.geofencing.Constants;
-import sk.lukasanda.wakeapp.model.DbGeofence;
-import sk.lukasanda.wakeapp.geofencing.GeofenceBroadcastReceiver;
-import sk.lukasanda.wakeapp.geofencing.GeofenceErrorMessages;
 import sk.lukasanda.wakeapp.R;
 import sk.lukasanda.wakeapp.adapters.ViewPagerAdapter;
 import sk.lukasanda.wakeapp.fragments.MarkersFragment;
+import sk.lukasanda.wakeapp.fragments.MyMapFragment;
+import sk.lukasanda.wakeapp.geofencing.Constants;
+import sk.lukasanda.wakeapp.geofencing.GeofenceBroadcastReceiver;
+import sk.lukasanda.wakeapp.geofencing.GeofenceErrorMessages;
+import sk.lukasanda.wakeapp.model.DbGeofence;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
-        OnCompleteListener<Void>, MarkersFragment.OnFragmentInteractionListener {
+public class MapsActivity extends AppCompatActivity implements
+        OnCompleteListener<Void>, MarkersFragment.OnFragmentInteractionListener, MyMapFragment
+                .OnFragmentInteractionListener {
     
     private static final String TAG = MapsActivity.class.getSimpleName();
     private static final int RADIUS_OF_EARTH_METERS = 6371009;
-    
-    private GoogleMap map;
-    
     /**
      * Provides access to the Geofencing API.
      */
@@ -89,11 +81,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     
     private ValueEventListener listener;
     
-    private DraggableCircle draggableCircle;
-    
     private List<DbGeofence> geofencesList = new ArrayList<>();
     
+    private List<MarkerOptions> markerOptions = new ArrayList<>();
+    
     private MarkersFragment markersFragment;
+    
+    private MyMapFragment myMapFragment;
     
     
     @Override
@@ -108,7 +102,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Empty list for storing geofences.
         mGeofenceList = new ArrayList<>();
         
-        registerGeofenceChangeListener();
         
         // Initially set the PendingIntent used in addGeofences() and removeGeofences() to null.
         mGeofencePendingIntent = null;
@@ -119,217 +112,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         final SupportMapFragment mapFragment = SupportMapFragment.newInstance();
         markersFragment = MarkersFragment.newInstance();
         
+        myMapFragment = MyMapFragment.newInstance();
         
         List<String> names = new ArrayList<>();
         names.add("MAP");
         names.add("LIST");
         
         final ViewPager vp = findViewById(R.id.container);
-        setupViewPager(vp, names, mapFragment, markersFragment);
+        setupViewPager(vp, names, myMapFragment, markersFragment);
         
-        final FloatingActionButton floatingActionButton = findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onFabClicked();
-            }
-        });
         
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(vp);
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                vp.setCurrentItem(tab.getPosition());
-                if (tab.getPosition() != 0) {
-                    floatingActionButton.setVisibility(View.GONE);
-                } else {
-                    floatingActionButton.setVisibility(View.VISIBLE);
-                }
-            }
-            
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
-            
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
-        });
         
-        vp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int
-                    positionOffsetPixels) {
-                
-            }
-            
-            @Override
-            public void onPageSelected(int position) {
-                if (position != 0) {
-                    floatingActionButton.setVisibility(View.GONE);
-                } else {
-                    floatingActionButton.setVisibility(View.VISIBLE);
-                }
-            }
-            
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            
-            }
-        });
-        
-        mapFragment.getMapAsync(this);
+        registerGeofenceChangeListener();
     }
-    
-    private void onFabClicked() {
-        if (draggableCircle == null) {
-            draggableCircle = new DraggableCircle(map.getCameraPosition().target, Constants
-                    .GEOFENCE_RADIUS_IN_METERS);
-            Toast.makeText(MapsActivity.this, R.string.marker_info, Toast.LENGTH_LONG)
-                    .show();
-        } else {
-            final EditText taskEditText = new EditText(MapsActivity.this);
-            AlertDialog dialog = new AlertDialog.Builder(MapsActivity.this)
-                    .setTitle("Add a new alarm")
-                    .setMessage("Set the name of this alarm")
-                    .setView(taskEditText)
-                    .setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            map.clear();
-                            if (geofencesList == null) {
-                                geofencesList = new ArrayList<>();
-                            }
-                            geofencesList.add(new DbGeofence(taskEditText
-                                    .getText().toString(),
-                                    draggableCircle.mCenterMarker.getPosition().latitude,
-                                    draggableCircle.mCenterMarker
-                                            .getPosition().longitude, draggableCircle.mCircle
-                                    .getRadius()));
-                            mDatabase.child(getUniqueID()).setValue(geofencesList);
-                            draggableCircle = null;
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            draggableCircle = null;
-                            map.clear();
-                            for (DbGeofence geofence : geofencesList) {
-                                map.addMarker(new MarkerOptions().position(new LatLng(geofence
-                                        .getLatitude(), geofence.getLongitude())).draggable(false));
-                            }
-                        }
-                    })
-                    .create();
-            dialog.show();
-        }
-    }
-    
-    
-    private void registerGeofenceChangeListener() {
-        if (listener == null) {
-            listener = new ValueEventListener() {
-                @SuppressLint("MissingPermission")
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    geofencesList.clear();
-                    map.clear();
-                    for (DataSnapshot d : dataSnapshot.getChildren()) {
-                        DbGeofence geofence = d.getValue(DbGeofence.class);
-                        if (geofence == null) continue;
-                        geofencesList.add(geofence);
-                        mGeofenceList.clear();
-                        
-                        if (map != null && map.getCameraPosition().zoom <= 5) {
-                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
-                                    (geofencesList.get(0).getLatitude(),
-                                            geofencesList.get(0).getLongitude()), 15f));
-                        }
-                        if (geofence.getRadius() > 0) {
-                            mGeofenceList.add(new Geofence.Builder()
-                                    .setRequestId(geofence.getName())
-                                    .setCircularRegion(
-                                            geofence.getLatitude(),
-                                            geofence.getLongitude(),
-                                            (float) geofence.getRadius()
-                                    )
-                                    .setExpirationDuration(Constants
-                                            .GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-                                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                                            Geofence.GEOFENCE_TRANSITION_EXIT)
-                                    .build());
-                            if (map != null)
-                                map.addMarker(new MarkerOptions().position(new LatLng
-                                        (geofence
-                                                .getLatitude(), geofence.getLongitude()))
-                                        .draggable
-                                                (false));
-                        }
-                        
-                    }
-                    markersFragment.setAdapter(geofencesList);
-                    if (mGeofenceList.size() > 0) {
-                        mGeofencingClient.addGeofences(getGeofencingRequest(),
-                                getGeofencePendingIntent())
-                                .addOnCompleteListener(MapsActivity.this);
-                    }
-                }
-                
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                
-                }
-            };
-        }
-        mDatabase.child(getUniqueID()).addValueEventListener(listener);
-    }
-    
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
-        mGeofencePendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent
-                .FLAG_UPDATE_CURRENT);
-        return mGeofencePendingIntent;
-    }
-    
-    
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker arg0) {
-                draggableCircle.onMarkerMoved(arg0);
-            }
-            
-            @SuppressWarnings("unchecked")
-            @Override
-            public void onMarkerDragEnd(Marker arg0) {
-                draggableCircle.onMarkerMoved(arg0);
-                map.animateCamera(CameraUpdateFactory.newLatLng(arg0.getPosition()));
-            }
-            
-            @Override
-            public void onMarkerDrag(Marker arg0) {
-                draggableCircle.onMarkerMoved(arg0);
-            }
-        });
-        map.setOnCircleClickListener(new GoogleMap.OnCircleClickListener() {
-            @Override
-            public void onCircleClick(Circle circle) {
-                // Flip the red, green and blue components of the circle's stroke color.
-                circle.setStrokeColor(circle.getStrokeColor() ^ 0x00ffffff);
-            }
-        });
-    }
-    
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -341,7 +138,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                updateMapPosition(query);
+                myMapFragment.updateMapPosition(query);
                 return false;
             }
             
@@ -364,6 +161,30 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
         if (listener != null) mDatabase.child(getUniqueID()).addValueEventListener(listener);
+    }
+    
+    @Override
+    public void onComplete(@NonNull Task<Void> task) {
+        if (!task.isSuccessful()) {
+            // Get the status code for the error and log it using a user-friendly message.
+            String errorMessage = GeofenceErrorMessages.getErrorString(this, task.getException());
+            Log.w(TAG, errorMessage);
+        }
+    }
+    
+    @Override
+    public void onGeofenceAdded(DbGeofence geofence) {
+        geofencesList.add(geofence);
+        mDatabase.child(getUniqueID()).setValue(geofencesList);
+    }
+    
+    @Override
+    public void onGeofenceDeleted(DbGeofence geofence) {
+        if (geofencesList == null || geofencesList.size() == 0)
+            return;
+        if (geofencesList.contains(geofence))
+            geofencesList.remove(geofence);
+        mDatabase.child(getUniqueID()).setValue(geofencesList);
     }
     
     @SuppressLint("MissingPermission")
@@ -409,115 +230,74 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return builder.build();
     }
     
-    public void updateMapPosition(String location) {
-        List<Address> addressList;
-        
-        if (location != null && !location.equals("")) {
-            Geocoder geocoder = new Geocoder(this);
-            try {
-                addressList = geocoder.getFromLocationName(location, 1);
-                Address address = addressList.get(0);
-                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                map.addMarker(new MarkerOptions().position(latLng).title(location));
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void registerGeofenceChangeListener() {
+        if (listener == null) {
+            listener = new ValueEventListener() {
+                @SuppressLint("MissingPermission")
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    geofencesList.clear();
+                    markerOptions.clear();
+                    mGeofenceList.clear();
+                    
+                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+                        
+                        DbGeofence geofence = d.getValue(DbGeofence.class);
+                        if (geofence == null) continue;
+                        
+                        geofencesList.add(geofence);
+                        
+                        if (geofence.getRadius() > 0) {
+                            mGeofenceList.add(new Geofence.Builder()
+                                    .setRequestId(geofence.getName())
+                                    .setCircularRegion(
+                                            geofence.getLatitude(),
+                                            geofence.getLongitude(),
+                                            (float) geofence.getRadius()
+                                    )
+                                    .setExpirationDuration(Constants
+                                            .GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                            Geofence.GEOFENCE_TRANSITION_EXIT)
+                                    .build());
+                            
+                            markerOptions.add(new MarkerOptions().position(new LatLng
+                                    (geofence
+                                            .getLatitude(), geofence.getLongitude()))
+                                    .draggable
+                                            (false));
+                        }
+                        
+                    }
+                    markersFragment.setAdapter(geofencesList);
+                    myMapFragment.updateMarkers(geofencesList);
+                    
+                    if (mGeofenceList.size() > 0) {
+                        mGeofencingClient.addGeofences(getGeofencingRequest(),
+                                getGeofencePendingIntent())
+                                .addOnCompleteListener(MapsActivity.this);
+                    }
+                }
+                
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                
+                }
+            };
         }
+        mDatabase.child(getUniqueID()).addValueEventListener(listener);
     }
     
-    @Override
-    public void onComplete(@NonNull Task<Void> task) {
-        if (!task.isSuccessful()) {
-            // Get the status code for the error and log it using a user-friendly message.
-            String errorMessage = GeofenceErrorMessages.getErrorString(this, task.getException());
-            Log.w(TAG, errorMessage);
+    private PendingIntent getGeofencePendingIntent() {
+        // Reuse the PendingIntent if we already have it.
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
         }
-    }
-    
-    @Override
-    public void onFragmentInteraction(DbGeofence geofence) {
-        if (geofencesList == null || geofencesList.size() == 0)
-            return;
-        if (geofencesList.contains(geofence))
-            geofencesList.remove(geofence);
-        mDatabase.child(getUniqueID()).setValue(geofencesList);
-    }
-    
-    /**
-     * Generate LatLng of radius marker
-     */
-    private static LatLng toRadiusLatLng(LatLng center, double radiusMeters) {
-        double radiusAngle = Math.toDegrees(radiusMeters / RADIUS_OF_EARTH_METERS) /
-                Math.cos(Math.toRadians(center.latitude));
-        return new LatLng(center.latitude, center.longitude + radiusAngle);
-    }
-    
-    private static double toRadiusMeters(LatLng center, LatLng radius) {
-        float[] result = new float[1];
-        Location.distanceBetween(center.latitude, center.longitude,
-                radius.latitude, radius.longitude, result);
-        return result[0];
-    }
-    
-    private class DraggableCircle {
-        private final Marker mCenterMarker;
-        private final Marker mRadiusMarker;
-        private final Circle mCircle;
-        private double mRadiusMeters;
-        
-        public DraggableCircle(LatLng center, double radiusMeters) {
-            mRadiusMeters = radiusMeters;
-            mCenterMarker = map.addMarker(new MarkerOptions()
-                    .position(center)
-                    .draggable(true));
-            mRadiusMarker = map.addMarker(new MarkerOptions()
-                    .position(toRadiusLatLng(center, radiusMeters))
-                    .draggable(true)
-                    .icon(BitmapDescriptorFactory.defaultMarker(
-                            BitmapDescriptorFactory.HUE_AZURE)));
-            
-            int color = getResources().getColor(R.color.colorPrimary);
-            int alphaColor = Color.argb(100, Color.red(color), Color.green(color), Color.blue
-                    (color));
-            mCircle = map.addCircle(new CircleOptions()
-                    .center(center)
-                    .radius(radiusMeters)
-                    .strokeColor(alphaColor)
-                    .fillColor(alphaColor).clickable(true));
-        }
-        
-        public Marker getmCenterMarker() {
-            return mCenterMarker;
-        }
-        
-        public boolean onMarkerMoved(Marker marker) {
-            if (marker.equals(mCenterMarker)) {
-                mCircle.setCenter(marker.getPosition());
-                mRadiusMarker.setPosition(toRadiusLatLng(marker.getPosition(), mRadiusMeters));
-                return true;
-            }
-            if (marker.equals(mRadiusMarker)) {
-                mRadiusMeters =
-                        toRadiusMeters(mCenterMarker.getPosition(), mRadiusMarker.getPosition());
-                mCircle.setRadius(mRadiusMeters);
-                return true;
-            }
-            return false;
-        }
-
-//        public void onStyleChange() {
-//            mCircle.setStrokeWidth(mStrokeWidthBar.getProgress());
-//            mCircle.setStrokeColor(mStrokeColorArgb);
-//            mCircle.setFillColor(mFillColorArgb);
-//        }
-//
-//        public void setStrokePattern(List<PatternItem> pattern) {
-//            mCircle.setStrokePattern(pattern);
-//        }
-//
-//        public void setClickable(boolean clickable) {
-//            mCircle.setClickable(clickable);
-//        }
+        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
+        // addGeofences() and removeGeofences().
+        mGeofencePendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent
+                .FLAG_UPDATE_CURRENT);
+        return mGeofencePendingIntent;
     }
 }
