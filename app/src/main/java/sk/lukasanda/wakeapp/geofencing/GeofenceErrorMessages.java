@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sk.lukasanda.wakeapp;
+package sk.lukasanda.wakeapp.geofencing;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -27,7 +27,7 @@ import sk.lukasanda.wakeapp.R;
 /**
  * Geofence error codes mapped to error messages.
  */
-class GeofenceErrorMessages {
+public class GeofenceErrorMessages {
     /**
      * Prevents instantiation.
      */

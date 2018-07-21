@@ -1,4 +1,4 @@
-package sk.lukasanda.wakeapp;
+package sk.lukasanda.wakeapp.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +10,9 @@ import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
+
+import sk.lukasanda.wakeapp.model.DbGeofence;
+import sk.lukasanda.wakeapp.R;
 
 public class MarkerListAdapter extends
         RecyclerView.Adapter<MarkerListAdapter.ViewHolder> {

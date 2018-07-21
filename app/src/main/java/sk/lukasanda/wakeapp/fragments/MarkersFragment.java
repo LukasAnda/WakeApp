@@ -1,9 +1,8 @@
-package sk.lukasanda.wakeapp;
+package sk.lukasanda.wakeapp.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -13,12 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.ArrayList;
 import java.util.List;
+
+import sk.lukasanda.wakeapp.model.DbGeofence;
+import sk.lukasanda.wakeapp.adapters.MarkerListAdapter;
+import sk.lukasanda.wakeapp.R;
 
 
 /**

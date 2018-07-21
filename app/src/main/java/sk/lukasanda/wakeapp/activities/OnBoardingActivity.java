@@ -1,4 +1,4 @@
-package sk.lukasanda.wakeapp;
+package sk.lukasanda.wakeapp.activities;
 
 import android.Manifest;
 import android.app.Activity;
@@ -8,15 +8,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.multi.BaseMultiplePermissionsListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.karumi.dexter.listener.single.PermissionListener;
+
+import sk.lukasanda.wakeapp.R;
+import sk.lukasanda.wakeapp.activities.MapsActivity;
 
 public class OnBoardingActivity extends AppCompatActivity {
     

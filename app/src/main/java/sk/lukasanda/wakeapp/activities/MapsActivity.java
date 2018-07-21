@@ -1,4 +1,4 @@
-package sk.lukasanda.wakeapp;
+package sk.lukasanda.wakeapp.activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -53,6 +53,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import sk.lukasanda.wakeapp.geofencing.Constants;
+import sk.lukasanda.wakeapp.model.DbGeofence;
+import sk.lukasanda.wakeapp.geofencing.GeofenceBroadcastReceiver;
+import sk.lukasanda.wakeapp.geofencing.GeofenceErrorMessages;
+import sk.lukasanda.wakeapp.R;
+import sk.lukasanda.wakeapp.adapters.ViewPagerAdapter;
+import sk.lukasanda.wakeapp.fragments.MarkersFragment;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         OnCompleteListener<Void>, MarkersFragment.OnFragmentInteractionListener {

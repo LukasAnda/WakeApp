@@ -1,4 +1,4 @@
-package sk.lukasanda.wakeapp;
+package sk.lukasanda.wakeapp.model;
 
 public class DbGeofence {
     private String name;

@@ -24,21 +24,21 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".activities.MapsActivity"
             android:label="@string/app_name">
         </activity>
 
         <receiver
-            android:name=".GeofenceBroadcastReceiver"
+            android:name=".geofencing.GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
 
         <service
-            android:name=".GeofenceTransitionsJobIntentService"
+            android:name=".geofencing.GeofenceTransitionsJobIntentService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <activity android:name=".OnBoardingActivity">
+        <activity android:name=".activities.OnBoardingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

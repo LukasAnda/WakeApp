@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sk.lukasanda.wakeapp;
+package sk.lukasanda.wakeapp.geofencing;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -24,7 +24,7 @@ import java.util.HashMap;
  * Constants used in this sample.
  */
 
-final class Constants {
+public final class Constants {
 
     private Constants() {
     }
@@ -42,9 +42,9 @@ final class Constants {
     /**
      * For this sample, geofences expire after twelve hours.
      */
-    static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
+    public static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
             GEOFENCE_EXPIRATION_IN_HOURS * 60 * 60 * 1000;
-    static final float GEOFENCE_RADIUS_IN_METERS = 1609*0.125f; // 1 mile, 1.6 km
+    public static final float GEOFENCE_RADIUS_IN_METERS = 1609*0.125f; // 1 mile, 1.6 km
 
     /**
      * Map for storing information about airports in the San Francisco bay area.

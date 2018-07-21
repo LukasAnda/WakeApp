@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sk.lukasanda.wakeapp;
+package sk.lukasanda.wakeapp.geofencing;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -35,6 +35,9 @@ import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import sk.lukasanda.wakeapp.R;
+import sk.lukasanda.wakeapp.activities.OnBoardingActivity;
 
 /**
  * Listener for geofence transition changes.
@@ -140,13 +143,13 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         }
 
         // Create an explicit content Intent that starts the main Activity.
-        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+        Intent notificationIntent = new Intent(getApplicationContext(), OnBoardingActivity.class);
 
         // Construct a task stack.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 
         // Add the main Activity to the task stack as the parent.
-        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addParentStack(OnBoardingActivity.class);
 
         // Push the content Intent onto the stack.
         stackBuilder.addNextIntent(notificationIntent);
