@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "177056631915",
+    "firebase_url": "https://wakeapp-cb91d.firebaseio.com",
+    "project_id": "wakeapp-cb91d",
+    "storage_bucket": "wakeapp-cb91d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177056631915:android:0cbdc8e5f37a95db",
+        "android_client_info": {
+          "package_name": "sk.lukasanda.wakeapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "177056631915-ltvjf55sj254i44sed82oog9l1on303d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "sk.lukasanda.wakeapp",
+            "certificate_hash": "2286c6443f0d55e376bac61d38d13da2b3b912b9"
+          }
+        },
+        {
+          "client_id": "177056631915-0ha19sef67476mffqsforq092o99q766.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJ-lzX05x9th59ow23hl0T_GuViqzDuFM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "177056631915-0ha19sef67476mffqsforq092o99q766.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
