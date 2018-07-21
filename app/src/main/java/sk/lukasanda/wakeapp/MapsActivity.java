@@ -264,8 +264,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         
                                         // Create the geofence.
                                         .build());
-                                map.addMarker(new MarkerOptions().position(new LatLng(geofence
-                                        .getLatitude(), geofence.getLongitude())).draggable(false));
+                                if (map != null)
+                                    map.addMarker(new MarkerOptions().position(new LatLng(geofence
+                                            .getLatitude(), geofence.getLongitude())).draggable
+                                            (false));
                             }
                         }
                         markersFragment.setAdapter(currentUser.getGeofences());
@@ -356,9 +358,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
+        super.onPause();
         mDatabase.removeEventListener(listener);
-        super.onDestroy();
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (listener != null) mDatabase.addValueEventListener(listener);
     }
     
     @SuppressLint("MissingPermission")
