@@ -1,19 +1,9 @@
 <resources>
     <string name="app_name">WakeApp</string>
-    <string name="title_activity_maps">Map</string>
 
     <string name="action_search">Search</string>
 
-    <string name="server_key">628546001427-qrst1oib6l7obg7uj2l7k5halvjaqf11.apps.googleusercontent.com</string>
-
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyAn_bJHAPPd5djILcFTO3vGq51OJDuvya0</string>
-
-    <!-- Buttons strings -->
-    <string name="add_geofences">Add geofences</string>
-    <string name="remove_geofences">Remove geofences</string>
-
-    <string name="geofences_added">Geofences added</string>
-    <string name="geofences_removed">Geofences removed</string>
 
     <!-- Error strings -->
     <string name="geofence_not_available">Geofence service is not available now</string>
@@ -37,13 +27,8 @@
         Click notification to return to app
     </string>
 
-    <string name="insufficient_permissions">Insufficient permissions.</string>
-    <string name="permission_rationale">Location permission is needed for core functionality</string>
-    <string name="permission_denied_explanation">Permission was denied, but is needed for core
-        functionality.</string>
-    <string name="settings">Settings</string>
     <string name="marker_info">Click again to save position after dragging</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_icon">App icon</string>
+    <string name="marker_item_icon">Alarm list icon</string>
 </resources>

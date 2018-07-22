@@ -8,6 +8,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -48,8 +49,6 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
     
     private OnFragmentInteractionListener mListener;
     
-    private SupportMapFragment mapFragment;
-    
     private GoogleMap map;
     
     private DraggableCircle draggableCircle;
@@ -66,16 +65,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
     }
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-    
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_my_map, container, false);
-        mapFragment = SupportMapFragment.newInstance();
+        SupportMapFragment mapFragment = SupportMapFragment.newInstance();
         getChildFragmentManager().beginTransaction().replace(R.id.map_container, mapFragment)
                 .commitAllowingStateLoss();
         mapFragment.getMapAsync(this);
@@ -177,8 +171,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
         if (map == null) return;
         map.clear();
         int lastElement = geofences.size() - 1;
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(geofences.get(lastElement)
-                .getLatitude(), geofences.get(lastElement).getLongitude()), 15f));
+        if (lastElement >= 0) {
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(geofences.get
+                    (lastElement)
+                    .getLatitude(), geofences.get(lastElement).getLongitude()), 15f));
+        }
         for (DbGeofence geofence : geofences) {
             new DraggableCircle(new LatLng(geofence.getLatitude(), geofence.getLongitude()),
                     geofence.getRadius(), false);
@@ -211,7 +208,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
         private final Circle mCircle;
         private double mRadiusMeters;
         
-        public DraggableCircle(LatLng center, double radiusMeters, boolean draggable) {
+        DraggableCircle(LatLng center, double radiusMeters, boolean draggable) {
             mRadiusMeters = radiusMeters;
             mCenterMarker = map.addMarker(new MarkerOptions()
                     .position(center)
@@ -239,23 +236,17 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
             mRadiusMarker.remove();
         }
         
-        public Marker getmCenterMarker() {
-            return mCenterMarker;
-        }
-        
-        public boolean onMarkerMoved(Marker marker) {
+        void onMarkerMoved(Marker marker) {
             if (marker.equals(mCenterMarker)) {
                 mCircle.setCenter(marker.getPosition());
                 mRadiusMarker.setPosition(toRadiusLatLng(marker.getPosition(), mRadiusMeters));
-                return true;
+                return;
             }
             if (marker.equals(mRadiusMarker)) {
                 mRadiusMeters =
                         toRadiusMeters(mCenterMarker.getPosition(), mRadiusMarker.getPosition());
                 mCircle.setRadius(mRadiusMeters);
-                return true;
             }
-            return false;
         }
     }
     

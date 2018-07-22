@@ -43,11 +43,6 @@ public class MarkersFragment extends Fragment {
     }
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-    
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -77,7 +72,7 @@ public class MarkersFragment extends Fragment {
     
     public void setAdapter(final List<DbGeofence> geofences){
         if(recyclerView!=null){
-            recyclerView.setAdapter(new MarkerListAdapter(getActivity(), geofences, new MarkerListAdapter.OnItemClickListener() {
+            recyclerView.setAdapter(new MarkerListAdapter(geofences, new MarkerListAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(int position) {
                     makeDialog(geofences.get(position));

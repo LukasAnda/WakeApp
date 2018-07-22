@@ -1,6 +1,7 @@
 package sk.lukasanda.wakeapp.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,32 +19,30 @@ public class MarkerListAdapter extends
         RecyclerView.Adapter<MarkerListAdapter.ViewHolder> {
 
     private static final String TAG = MarkerListAdapter.class.getSimpleName();
-
-    private Context context;
+    
     private List<DbGeofence> list;
     private OnItemClickListener onItemClickListener;
 
-    public MarkerListAdapter(Context context, List<DbGeofence> list,
+    public MarkerListAdapter(List<DbGeofence> list,
      OnItemClickListener onItemClickListener) {
-        this.context = context;
         this.list = list;
         this.onItemClickListener = onItemClickListener;
     }
 
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         
         private TextView name;
         private TextView location;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.name);
             location = itemView.findViewById(R.id.location);
 
         }
 
-        public void bind(final DbGeofence model,
+        void bind(final DbGeofence model,
                          final OnItemClickListener listener) {
             name.setText(model.getName());
             location.setText(new LatLng(model.getLatitude(),model.getLongitude()).toString());
@@ -57,8 +56,9 @@ public class MarkerListAdapter extends
         }
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
@@ -69,7 +69,7 @@ public class MarkerListAdapter extends
 
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DbGeofence item = list.get(position);
         
         holder.bind(item, onItemClickListener);

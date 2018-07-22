@@ -4,10 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -25,14 +21,8 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -42,7 +32,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +50,6 @@ public class MapsActivity extends AppCompatActivity implements
                 .OnFragmentInteractionListener {
     
     private static final String TAG = MapsActivity.class.getSimpleName();
-    private static final int RADIUS_OF_EARTH_METERS = 6371009;
     /**
      * Provides access to the Geofencing API.
      */
@@ -77,13 +65,11 @@ public class MapsActivity extends AppCompatActivity implements
      */
     private PendingIntent mGeofencePendingIntent;
     
-    DatabaseReference mDatabase;
+    private DatabaseReference mDatabase;
     
     private ValueEventListener listener;
     
     private List<DbGeofence> geofencesList = new ArrayList<>();
-    
-    private List<MarkerOptions> markerOptions = new ArrayList<>();
     
     private MarkersFragment markersFragment;
     
@@ -108,8 +94,6 @@ public class MapsActivity extends AppCompatActivity implements
         
         
         mGeofencingClient = LocationServices.getGeofencingClient(this);
-        
-        final SupportMapFragment mapFragment = SupportMapFragment.newInstance();
         markersFragment = MarkersFragment.newInstance();
         
         myMapFragment = MyMapFragment.newInstance();
@@ -188,7 +172,7 @@ public class MapsActivity extends AppCompatActivity implements
     }
     
     @SuppressLint("MissingPermission")
-    public String getUniqueID() {
+    private String getUniqueID() {
         final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context
                 .TELEPHONY_SERVICE);
         
@@ -200,8 +184,7 @@ public class MapsActivity extends AppCompatActivity implements
         
         UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) |
                 tmSerial.hashCode());
-        String deviceId = deviceUuid.toString();
-        return deviceId;
+        return deviceUuid.toString();
     }
     
     private void setupViewPager(ViewPager viewPager, List<String> names, Fragment... fragments) {
@@ -237,7 +220,6 @@ public class MapsActivity extends AppCompatActivity implements
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     geofencesList.clear();
-                    markerOptions.clear();
                     mGeofenceList.clear();
                     
                     for (DataSnapshot d : dataSnapshot.getChildren()) {
@@ -261,11 +243,6 @@ public class MapsActivity extends AppCompatActivity implements
                                             Geofence.GEOFENCE_TRANSITION_EXIT)
                                     .build());
                             
-                            markerOptions.add(new MarkerOptions().position(new LatLng
-                                    (geofence
-                                            .getLatitude(), geofence.getLongitude()))
-                                    .draggable
-                                            (false));
                         }
                         
                     }
