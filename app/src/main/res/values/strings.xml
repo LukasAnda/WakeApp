@@ -24,11 +24,13 @@
     <string name="unknown_geofence_transition">Unknown Transition</string>
 
     <string name="geofence_transition_notification_text">
-        Click notification to return to app
+        Click here to cancel notification
     </string>
 
     <string name="marker_info">Click again to save position after dragging</string>
 
     <string name="app_icon">App icon</string>
     <string name="marker_item_icon">Alarm list icon</string>
+    <string name="appwidget_text">List of available alarms</string>
+    <string name="add_widget">Add widget</string>
 </resources>

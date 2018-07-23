@@ -8,7 +8,8 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
@@ -18,20 +19,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
         <activity
             android:name=".activities.MapsActivity"
-            android:label="@string/app_name">
-        </activity>
+            android:label="@string/app_name"
+            android:launchMode="singleTask"></activity>
 
         <receiver
             android:name=".geofencing.GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
+        <receiver android:name=".geofencing.NotificationCancelReceiver">
+            <intent-filter android:priority="999">
+                <action android:name="sk.lukasanda.wakeapp.cancel" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".geofencing.GeofenceTransitionsJobIntentService"
@@ -45,6 +50,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".AlarmsWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/alarms_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".AlarmsWidgetIntentService"
+            android:exported="false" />
     </application>
 
 </manifest>

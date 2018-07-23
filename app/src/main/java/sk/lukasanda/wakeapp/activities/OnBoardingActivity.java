@@ -35,14 +35,15 @@ public class OnBoardingActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MapsActivity.class);
         MultiplePermissionsListener dialogPermissionListener =
                 new CustomPermissionListener(this,
-                        "Location permission",
+                        "Permissions",
                         "We need this permission to wake you up at your position",
                         "Close app",
                         getResources().getDrawable(R.mipmap.ic_launcher), intent);
         
         Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission
-                        .READ_PHONE_STATE)
+                .withPermissions(Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.VIBRATE)
                 .withListener(dialogPermissionListener)
                 .check();
     }

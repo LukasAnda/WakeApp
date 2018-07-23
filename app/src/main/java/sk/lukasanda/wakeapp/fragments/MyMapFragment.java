@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import sk.lukasanda.wakeapp.R;
@@ -52,6 +53,8 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap map;
     
     private DraggableCircle draggableCircle;
+    
+    private List<DbGeofence> localGeofences = new ArrayList<>();
     
     public MyMapFragment() {
         // Required empty public constructor
@@ -127,6 +130,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
                 circle.setStrokeColor(circle.getStrokeColor() ^ 0x00ffffff);
             }
         });
+        updateMarkers(localGeofences);
     }
     
     private void onFabClicked() {
@@ -168,6 +172,7 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
     }
     
     public void updateMarkers(List<DbGeofence> geofences) {
+        localGeofences = geofences;
         if (map == null) return;
         map.clear();
         int lastElement = geofences.size() - 1;

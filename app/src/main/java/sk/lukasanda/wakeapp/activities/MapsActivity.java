@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import sk.lukasanda.wakeapp.AlarmsWidgetIntentService;
 import sk.lukasanda.wakeapp.R;
 import sk.lukasanda.wakeapp.adapters.ViewPagerAdapter;
 import sk.lukasanda.wakeapp.fragments.MarkersFragment;
@@ -136,15 +137,9 @@ public class MapsActivity extends AppCompatActivity implements
     }
     
     @Override
-    protected void onPause() {
-        super.onPause();
-        mDatabase.child(getUniqueID()).removeEventListener(listener);
-    }
-    
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (listener != null) mDatabase.child(getUniqueID()).addValueEventListener(listener);
+    protected void onDestroy() {
+        mDatabase.child(Constants.getUniqueID(MapsActivity.this)).removeEventListener(listener);
+        super.onDestroy();
     }
     
     @Override
@@ -159,7 +154,8 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     public void onGeofenceAdded(DbGeofence geofence) {
         geofencesList.add(geofence);
-        mDatabase.child(getUniqueID()).setValue(geofencesList);
+        mDatabase.child(Constants.getUniqueID(MapsActivity.this)).setValue(geofencesList);
+        AlarmsWidgetIntentService.startActionUpdateWidget(MapsActivity.this);
     }
     
     @Override
@@ -168,23 +164,8 @@ public class MapsActivity extends AppCompatActivity implements
             return;
         if (geofencesList.contains(geofence))
             geofencesList.remove(geofence);
-        mDatabase.child(getUniqueID()).setValue(geofencesList);
-    }
-    
-    @SuppressLint("MissingPermission")
-    private String getUniqueID() {
-        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context
-                .TELEPHONY_SERVICE);
-        
-        final String tmDevice, tmSerial, androidId;
-        tmDevice = "" + tm.getDeviceId();
-        tmSerial = "" + tm.getSimSerialNumber();
-        androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android
-                .provider.Settings.Secure.ANDROID_ID);
-        
-        UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) |
-                tmSerial.hashCode());
-        return deviceUuid.toString();
+        mDatabase.child(Constants.getUniqueID(MapsActivity.this)).setValue(geofencesList);
+        AlarmsWidgetIntentService.startActionUpdateWidget(MapsActivity.this);
     }
     
     private void setupViewPager(ViewPager viewPager, List<String> names, Fragment... fragments) {
@@ -262,7 +243,7 @@ public class MapsActivity extends AppCompatActivity implements
                 }
             };
         }
-        mDatabase.child(getUniqueID()).addValueEventListener(listener);
+        mDatabase.child(Constants.getUniqueID(MapsActivity.this)).addValueEventListener(listener);
     }
     
     private PendingIntent getGeofencePendingIntent() {

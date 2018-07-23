@@ -16,9 +16,14 @@
 
 package sk.lukasanda.wakeapp.geofencing;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.telephony.TelephonyManager;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Constants used in this sample.
@@ -41,5 +46,21 @@ public final class Constants {
     public static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
             GEOFENCE_EXPIRATION_IN_HOURS * 60 * 60 * 1000;
     public static final float GEOFENCE_RADIUS_IN_METERS = 1609*0.125f; // .125 mile, 0.2 km
+    
+    @SuppressLint("MissingPermission")
+    public static String getUniqueID(Context context) {
+        final TelephonyManager tm = (TelephonyManager) context.getSystemService(Context
+                .TELEPHONY_SERVICE);
+        
+        final String tmDevice, tmSerial, androidId;
+        tmDevice = "" + tm.getDeviceId();
+        tmSerial = "" + tm.getSimSerialNumber();
+        androidId = "" + android.provider.Settings.Secure.getString(context.getContentResolver(), android
+                .provider.Settings.Secure.ANDROID_ID);
+        
+        UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) |
+                tmSerial.hashCode());
+        return deviceUuid.toString();
+    }
     
 }
