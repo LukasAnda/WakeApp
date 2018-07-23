@@ -203,6 +203,8 @@ public class MapsActivity extends AppCompatActivity implements
                     geofencesList.clear();
                     mGeofenceList.clear();
                     
+                    
+                    
                     for (DataSnapshot d : dataSnapshot.getChildren()) {
                         
                         DbGeofence geofence = d.getValue(DbGeofence.class);
@@ -234,6 +236,8 @@ public class MapsActivity extends AppCompatActivity implements
                         mGeofencingClient.addGeofences(getGeofencingRequest(),
                                 getGeofencePendingIntent())
                                 .addOnCompleteListener(MapsActivity.this);
+                    } else {
+                        Log.d(TAG, "No geofences to add");
                     }
                 }
                 

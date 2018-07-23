@@ -33,4 +33,5 @@
     <string name="marker_item_icon">Alarm list icon</string>
     <string name="appwidget_text">List of available alarms</string>
     <string name="add_widget">Add widget</string>
+    <string name="empty_alarm_name_error">Alarm name must not be empty</string>
 </resources>

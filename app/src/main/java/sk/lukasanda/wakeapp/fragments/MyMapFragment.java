@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +30,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import sk.lukasanda.wakeapp.R;
+import sk.lukasanda.wakeapp.activities.MapsActivity;
 import sk.lukasanda.wakeapp.geofencing.Constants;
 import sk.lukasanda.wakeapp.model.DbGeofence;
 
@@ -45,6 +50,8 @@ import sk.lukasanda.wakeapp.model.DbGeofence;
  * create an instance of this fragment.
  */
 public class MyMapFragment extends Fragment implements OnMapReadyCallback {
+    
+    private static final String TAG = MyMapFragment.class.getSimpleName();
     
     private static final int RADIUS_OF_EARTH_METERS = 6371009;
     
@@ -148,6 +155,11 @@ public class MyMapFragment extends Fragment implements OnMapReadyCallback {
                     .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            if(TextUtils.isEmpty(taskEditText.getText().toString())){
+                                Log.d(TAG, "Empty alarm name");
+                                Toast.makeText(getContext(), R.string.empty_alarm_name_error, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
                             map.clear();
                             if (mListener != null)
                                 mListener.onGeofenceAdded(new DbGeofence(taskEditText
