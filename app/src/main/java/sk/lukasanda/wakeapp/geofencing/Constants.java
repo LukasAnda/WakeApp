@@ -63,4 +63,9 @@ public final class Constants {
         return deviceUuid.toString();
     }
     
+    @SuppressLint("DefaultLocale")
+    public static double formatDouble(double number){
+        return Double.valueOf(String.format("%.4f", number));
+    }
+    
 }

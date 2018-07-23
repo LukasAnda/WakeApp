@@ -18,6 +18,8 @@ import com.google.firebase.database.ValueEventListener;
 import sk.lukasanda.wakeapp.geofencing.Constants;
 import sk.lukasanda.wakeapp.model.DbGeofence;
 
+import static sk.lukasanda.wakeapp.geofencing.Constants.formatDouble;
+
 public class AlarmsWidgetIntentService extends IntentService {
     
     private static final String ACTION_UPDATE = "sk.lukasanda.wakeapp.action.UPDATE_WIDGETS";
@@ -67,7 +69,7 @@ public class AlarmsWidgetIntentService extends IntentService {
                     if (geofence != null) {
                         sb.append(geofence.getName());
                         sb.append("\n");
-                        sb.append(new LatLng(geofence.getLatitude(),geofence.getLongitude()));
+                        sb.append(new LatLng(formatDouble(geofence.getLatitude()),formatDouble(geofence.getLongitude())));
                         sb.append("\n");
                     }
                 }

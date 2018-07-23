@@ -12,8 +12,11 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+import sk.lukasanda.wakeapp.geofencing.Constants;
 import sk.lukasanda.wakeapp.model.DbGeofence;
 import sk.lukasanda.wakeapp.R;
+
+import static sk.lukasanda.wakeapp.geofencing.Constants.formatDouble;
 
 public class MarkerListAdapter extends
         RecyclerView.Adapter<MarkerListAdapter.ViewHolder> {
@@ -45,7 +48,7 @@ public class MarkerListAdapter extends
         void bind(final DbGeofence model,
                          final OnItemClickListener listener) {
             name.setText(model.getName());
-            location.setText(new LatLng(model.getLatitude(),model.getLongitude()).toString());
+            location.setText(new LatLng(formatDouble(model.getLatitude()),formatDouble(model.getLongitude())).toString());
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
